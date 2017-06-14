@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">Android App</string>
+    <string name="title_activity_main">MainActivity</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+
+    <string name="menu_logout">Log Out</string>
+    <string name="menu_forget_logout">Forget and Log Out</string>
+
+
+</resources>
