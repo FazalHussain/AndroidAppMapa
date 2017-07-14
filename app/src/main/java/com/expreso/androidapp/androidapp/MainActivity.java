@@ -1,7 +1,9 @@
 package com.expreso.androidapp.androidapp;
 
+import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -15,17 +17,23 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.expreso.androidapp.androidapp.Util.Util;
+import com.expreso.androidapp.androidapp.Direcciones_GPS.Direcciones_GPS_Activity;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
-    private SharedPreferences prefs;
+
+
+    Context context;
+    LocationManager locationManager ;
+    boolean GpsStatus ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        //Add below line after setContentView to disable rotation.
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         setSupportActionBar(toolbar);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -45,6 +53,9 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+
+
     }
 
     @Override
@@ -74,7 +85,7 @@ public class MainActivity extends AppCompatActivity
                 LogOut();
                 return true;
             case R.id.menu_forget_logout:
-                Util.removeSharedPreferences(prefs);
+
                 LogOut();
                 return true;
             default:
@@ -84,9 +95,7 @@ public class MainActivity extends AppCompatActivity
 
     private void LogOut() {
 
-        Intent intent = new Intent(this, LoginActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
+
 
     }
 
@@ -110,6 +119,8 @@ public class MainActivity extends AppCompatActivity
 
         } else if (id == R.id.nav_share) {
 
+            direcciones_gps();
+
         } else if (id == R.id.nav_send) {
 
             Exit();
@@ -120,4 +131,16 @@ public class MainActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
+    private void direcciones_gps() {
+        Intent intent = new Intent(MainActivity.this, Direcciones_GPS_Activity.class);
+        startActivity(intent);
+    }
+
+    public void CheckGpsStatus(){
+
+
+
+    }
+
 }

@@ -1,6 +1,19 @@
 <resources>
-    <string name="app_name">Android App</string>
-    <string name="title_activity_main">MainActivity</string>
+    <string name="app_name">Google Mapas</string>
+    <string name="title_activity_main">Motorizado</string>
+    <string name="imagen">Imagen</string>
+    <string name="connect_internet">Por Favor, conectate a Internet</string>
+    <string name="login_failed">Por Favor, conectate a Internet</string>
+    <string name="email_failed">El Email no es valido, por favor ingresa nuevamente</string>
+    <string name="password_failed">El Password no es valido, por favor ingresa nuevamente</string>
+    <string name="gps_failed">Activa el GPS, para utilizar el Mapa</string>
+
+    <string name="geo_mapa">Google Mapas</string>
+    <string name="salida">Salida</string>
+
+
+
+    <string name="error_usuario_clave">error de usuario o contraseña</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -9,6 +22,8 @@
 
     <string name="menu_logout">Log Out</string>
     <string name="menu_forget_logout">Forget and Log Out</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="title_activity_direcciones__gps_">Map</string>
 
 
 </resources>
