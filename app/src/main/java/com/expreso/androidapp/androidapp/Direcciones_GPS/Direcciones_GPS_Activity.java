@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -19,8 +20,10 @@ import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.expreso.androidapp.androidapp.CustomInfoWindow.CustomInfo;
 import com.expreso.androidapp.androidapp.MainActivity;
 import com.expreso.androidapp.androidapp.R;
 import com.google.android.gms.common.ConnectionResult;
@@ -37,6 +40,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.maps.model.RoundCap;
 
 import java.io.UnsupportedEncodingException;
@@ -57,7 +62,7 @@ public class Direcciones_GPS_Activity extends FragmentActivity implements OnMapR
         GoogleApiClient.OnConnectionFailedListener, GoogleMap.OnInfoWindowClickListener,
         LocationListener, DirectionFinderListener {
 
-    public static final String ENDPOINT_URL = "http://52.67.125.51/";
+    public static final String ENDPOINT_URL = "http://54.207.16.128/";
     private static final long MINUTE = 60 * 1000;
     private GetTodos getTodos;
     private GoogleMap mMap;
@@ -74,6 +79,8 @@ public class Direcciones_GPS_Activity extends FragmentActivity implements OnMapR
     private ArrayList<Marker> markersToClear;
     private boolean isGPSPointFound;
     private double distance;
+    private List<Route> list_route;
+    private ProgressBar pb;
 
 
     @Override
@@ -112,6 +119,9 @@ public class Direcciones_GPS_Activity extends FragmentActivity implements OnMapR
         image1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                Toast.makeText(getApplicationContext(), "Segunda OPcion", Toast.LENGTH_SHORT).show();
+
                 try{
                     String origin = "";
                     String destination = "";
@@ -136,14 +146,15 @@ public class Direcciones_GPS_Activity extends FragmentActivity implements OnMapR
                         origin = addresses_origin.get(0).getAddressLine(0);
                         destination = addresses_destination.get(0).getAddressLine(0);
                         destinationlist.add(destination);
-
                     }
 
                     try {
-                        new DirectionFinder(Direcciones_GPS_Activity.this, origin, destinationlist).execute();
+                        new DirectionFinder(Direcciones_GPS_Activity.this,Direcciones_GPS_Activity.this, origin, destinationlist).execute();
                     } catch (UnsupportedEncodingException e) {
                         e.printStackTrace();
                     }
+
+
                 }catch (Exception e){
                     e.printStackTrace();
                 }
@@ -153,7 +164,9 @@ public class Direcciones_GPS_Activity extends FragmentActivity implements OnMapR
         image2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 try{
+                    int i=0;
                     Todo todo_ = null;
                     for (Marker marker : markersToClear) {
                         marker.remove();
@@ -178,33 +191,49 @@ public class Direcciones_GPS_Activity extends FragmentActivity implements OnMapR
                         destinationLocation.setLatitude(lati);
                         destinationLocation.setLongitude(lngi);
 
-                        distance = originLocation.distanceTo(destinationLocation);
+
+
+                        Polyline line = mMap.addPolyline(new PolylineOptions()
+                                .add(new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude()), new LatLng(lati, lngi))
+                                .width(10)
+                                .color(Color.RED));
 
 
 
-                        if(distance<=1){
-                            isGPSPointFound = true;
-                            break;
+                        if(list_route!=null) {
+
+                            distance = list_route.get(i).distance.value;
+                            if (list_route.get(i).distance.value <= 1) {
+                                isGPSPointFound = true;
+                            }
                         }
 
 
+
+
+                        /*if(isGPSPointFound){
+                            Log.d(TAG+"  DistanceFound:", String.valueOf(distance));
+
+                            Marker myMarker = mMap.addMarker(new MarkerOptions().position(latLng).title(todo_.getRazonSocial()
+                            ).snippet(todo_.getAddress()).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA)));
+
+
+                        }*/
+
+                        Marker myMarker = mMap.addMarker(new MarkerOptions().position(latLng).title(todo_.getAddress()
+                        ).snippet("Distance is: " + list_route.get(i).distance.text+ "\nDuration is: "+list_route.get(i).duration.text)
+                                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA)));
+
+                        i++;
+
                     }
 
-                    if(isGPSPointFound){
-                        Log.d(TAG+"  DistanceFound:", String.valueOf(distance));
-                        String[] geo = todo_.getGeolocation().split(",");
-                        double lati = Double.parseDouble(geo[0]);
-                        double lngi = Double.parseDouble(geo[1]);
-
-                        LatLng latLng = new LatLng(lati, lngi);
-                        Marker myMarker = mMap.addMarker(new MarkerOptions().position(latLng).title(todo_.getRazonSocial()
-                        ).snippet(todo_.getAddress()).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA)));
-                    }else {
+                    /*if(!isGPSPointFound){
                         new AlertDialog.Builder(Direcciones_GPS_Activity.this)
                                 .setTitle("Alert!")
                                 .setMessage("Approach at least 10 meters to the place")
                                 .show();
-                    }
+                    }*/
                 }catch (Exception e){
                     e.printStackTrace();
                 }
@@ -497,12 +526,25 @@ public class Direcciones_GPS_Activity extends FragmentActivity implements OnMapR
         // Podemos utilizar el snippet para colocar el codigo unico
         // para poder realizar el filtrado mediante retrofit
 
-        Toast.makeText(this, "Info window clicked" +marker.getTitle() ,
-                Toast.LENGTH_SHORT).show();
+       try{
+           if(marker.isInfoWindowShown()){
+               marker.hideInfoWindow();
+           }
+
+           Toast.makeText(this, "Info window clicked" +marker.getTitle() ,
+                   Toast.LENGTH_SHORT).show();
+
+
+           mMap.setInfoWindowAdapter(new CustomInfo(getLayoutInflater()));
+           marker.showInfoWindow();
+       }catch (Exception e){
+           e.printStackTrace();
+       }
     }
 
     @Override
     public void onDirectionFinderSuccess(List<Route> route) {
+        list_route = route;
         for(Route routefound : route){
             Log.d(TAG+" Distance:", String.valueOf(routefound.distance.text)+" Duration: "+routefound.duration.text);
         }

@@ -1,6 +1,10 @@
 package com.expreso.androidapp.androidapp.Direcciones_GPS;
 
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.os.AsyncTask;
+import android.view.View;
+import android.widget.ProgressBar;
 
 import com.google.android.gms.maps.model.LatLng;
 
@@ -28,13 +32,15 @@ public class DirectionFinder {
     private DirectionFinderListener listener;
     private String origin;
     int count = 0;
+    ProgressDialog progressBar;
     private ArrayList<String> destination;
     List<Route> routes = new ArrayList<Route>();
 
-    public DirectionFinder(DirectionFinderListener listener, String origin, ArrayList<String> destination) {
+    public DirectionFinder(Context context,DirectionFinderListener listener, String origin, ArrayList<String> destination) {
         this.listener = listener;
         this.origin = origin;
         this.destination = destination;
+        progressBar = new ProgressDialog(context);
     }
 
     public void execute() throws UnsupportedEncodingException {
@@ -51,6 +57,16 @@ public class DirectionFinder {
     }
 
     private class DownloadRawData extends AsyncTask<String, Void, String> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressBar.setTitle("Alert!");
+            progressBar.setMessage("Loading Data....");
+            progressBar.setIndeterminate(true);
+            progressBar.setProgress(0);
+            progressBar.show();
+        }
 
         @Override
         protected String doInBackground(String... params) {
@@ -80,6 +96,7 @@ public class DirectionFinder {
         protected void onPostExecute(String res) {
             try {
                 parseJSon(res);
+                progressBar.dismiss();
             } catch (JSONException e) {
                 e.printStackTrace();
             }
